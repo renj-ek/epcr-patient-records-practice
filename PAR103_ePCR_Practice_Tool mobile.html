@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAR103 — ePCR Practice Sheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap');
+
+  :root {
+    --navy:      #0d1b2a;
+    --blue:      #1a3a5c;
+    --mid:       #2563a8;
+    --accent:    #3b82d4;
+    --sky:       #dbeafe;
+    --panel:     #f4f7fb;
+    --border:    #b8cde6;
+    --text:      #0d1b2a;
+    --muted:     #4a6080;
+    --red:       #b91c1c;
+    --red-bg:    #fef2f2;
+    --green:     #166534;
+    --green-bg:  #f0fdf4;
+    --orange:    #c2410c;
+    --or-bg:     #fff7ed;
+    --radius:    3px;
+    --mono:      'IBM Plex Mono', monospace;
+    --sans:      'IBM Plex Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: #e2e9f2;
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 64px;
+  }
+
+  .sys-bar {
+    background: var(--navy);
+    color: #6b8faf;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .07em;
+    padding: 5px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .sys-left { display: flex; gap: 20px; align-items: center; }
+  .sys-status { color: #22c55e; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .sys-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; animation: blink 2.4s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .header {
+    background: linear-gradient(160deg, var(--navy) 0%, #1a3a5c 100%);
+    padding: 16px 0 0;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,.3);
+  }
+  .inner { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+  .hrow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 16px; }
+  .hid { font-family: var(--mono); font-size: 10px; color: #4a7499; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+  .htitle { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: .01em; line-height: 1.2; }
+  .hsub { font-family: var(--mono); font-size: 11px; color: #5a8ab0; margin-top: 3px; }
+  .badges { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+  .badge { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .06em; padding: 3px 9px; border-radius: 2px; border: 1px solid transparent; white-space: nowrap; }
+  .bwarn  { background: rgba(234,179,8,.12); border-color: rgba(234,179,8,.35); color: #fde68a; }
+  .bsys   { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.15); color: #7aabb8; }
+  .bdraft { background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.3); color: #fbbf24; }
+  .bdone  { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.3); color: #4ade80; }
+
+  .session-bar { background: rgba(0,0,0,.25); border-top: 1px solid rgba(255,255,255,.07); padding: 10px 0; }
+  .sbar-inner { max-width: 960px; margin: 0 auto; padding: 0 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .sbar-inner label { font-family: var(--mono); font-size: 10px; font-weight: 600; color: #5a8ab0; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+  .sbar-inner select { font-family: var(--mono); font-size: 12px; color: #c8dff0; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: var(--radius); padding: 5px 28px 5px 10px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a8ab0' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; cursor: pointer; min-width: 180px; }
+  .sbar-inner select:focus { outline: none; border-color: var(--accent); }
+  .sbar-inner select option { background: #1a3a5c; color: #fff; }
+  .sdiv { width: 1px; height: 24px; background: rgba(255,255,255,.1); }
+
+  .tabs-wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; display: flex; gap: 2px; align-items: flex-end; overflow-x: auto; }
+  .tab { -webkit-appearance: none; appearance: none; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .05em; padding: 9px 15px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-bottom: none; border-radius: 3px 3px 0 0; color: #5a8ab0; cursor: pointer; transition: all .13s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+  .tab:hover { background: rgba(255,255,255,.12); color: #9ec5e0; }
+  .tab, .btn, .scb { touch-action: manipulation; -webkit-tap-highlight-color: rgba(59,130,212,.25); }
+  .tab.active { background: var(--panel); color: var(--navy); }
+  .tind { width: 5px; height: 5px; border-radius: 50%; background: #334d66; flex-shrink: 0; transition: background .2s; }
+  .tab.active   .tind { background: var(--mid); }
+  .tab.complete .tind { background: #22c55e; }
+
+  .main { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+  .panel { display: none; background: #fff; border: 1px solid var(--border); border-top: 3px solid var(--mid); padding: 22px; border-radius: 0 var(--radius) var(--radius) var(--radius); }
+  .panel.active { display: block; }
+
+  .sh { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: #fff; background: var(--navy); padding: 6px 12px; border-radius: var(--radius) var(--radius) 0 0; margin: 22px 0 0; }
+  .sh:first-child { margin-top: 0; }
+  .sb { border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); padding: 16px; background: var(--panel); }
+
+  .g2  { display: grid; gap: 12px 14px; grid-template-columns: 1fr 1fr; }
+  .g3  { display: grid; gap: 12px 14px; grid-template-columns: 1fr 1fr 1fr; }
+  .g4  { display: grid; gap: 12px 14px; grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .g1  { display: grid; gap: 12px 14px; grid-template-columns: 1fr; }
+  .s2  { grid-column: span 2; }
+  .s3  { grid-column: span 3; }
+  .s4  { grid-column: span 4; }
+
+  .f { display: flex; flex-direction: column; gap: 4px; }
+  .f > label { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 3px; }
+  .req { color: var(--red); }
+
+  input[type="text"], input[type="date"], input[type="time"], input[type="number"], select, textarea {
+    width: 100%; font-family: var(--mono); font-size: 12.5px; color: var(--text); background: #fff;
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 7px 10px; outline: none;
+    transition: border-color .13s, box-shadow .13s; appearance: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,212,.12); }
+  textarea { resize: vertical; line-height: 1.65; }
+  select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234a6080' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+  .og { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .og label { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 11.5px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--text); background: #fff; border: 1px solid var(--border); padding: 5px 10px; border-radius: var(--radius); cursor: pointer; transition: all .1s; }
+  .og label:hover { border-color: var(--accent); background: var(--sky); }
+  input[type="radio"], input[type="checkbox"] { width: auto; accent-color: var(--mid); }
+
+  .callout { display: flex; gap: 10px; align-items: flex-start; padding: 11px 14px; border-radius: var(--radius); font-size: 12px; line-height: 1.6; margin-bottom: 16px; }
+  .ci { background: var(--sky);      border-left: 3px solid var(--accent); color: var(--blue); }
+  .cw { background: var(--or-bg);    border-left: 3px solid var(--orange); color: var(--orange); }
+  .cs { background: var(--green-bg); border-left: 3px solid var(--green);  color: var(--green); }
+
+  .vt { width: 100%; border-collapse: collapse; font-family: var(--mono); }
+  .vt th { background: var(--blue); color: #fff; font-size: 10.5px; font-weight: 600; letter-spacing: .06em; padding: 8px 10px; text-align: left; }
+  .vt td { padding: 5px 8px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: middle; }
+  .vt tr:nth-child(even) td { background: var(--panel); }
+  .vt tr:last-child td { border-bottom: none; }
+  .vi { border: none; background: transparent; font-family: var(--mono); font-size: 12.5px; width: 100%; padding: 3px 4px; outline: none; color: var(--text); }
+  .vi:focus { background: #fff; border: 1px solid var(--accent); border-radius: 2px; }
+  .vr { color: var(--muted); font-size: 10.5px; }
+
+  .nw { position: relative; }
+  .nw textarea { font-family: var(--mono); font-size: 12px; line-height: 1.8; min-height: 200px; }
+  .nc { position: absolute; bottom: 8px; right: 10px; font-family: var(--mono); font-size: 10px; color: var(--muted); pointer-events: none; }
+
+  .rt { width: 100%; border-collapse: collapse; }
+  .rt th { background: var(--navy); color: #fff; font-family: var(--mono); font-size: 10.5px; letter-spacing: .07em; padding: 8px 12px; text-align: left; }
+  .rt td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .rt tr:last-child td { border-bottom: none; }
+  .rt tr:nth-child(odd) td { background: var(--panel); }
+  .ct  { font-size: 12.5px; line-height: 1.5; font-weight: 600; }
+  .cd  { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+  .sbs { display: flex; gap: 5px; margin-top: 4px; }
+  .scb { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .1s; }
+  .scb:hover { border-color: var(--accent); color: var(--accent); }
+  .scb.sel { background: var(--mid); color: #fff; border-color: var(--mid); }
+  .sbl { font-family: var(--mono); font-size: 9.5px; color: var(--muted); margin-top: 3px; }
+  .rn { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 9px; font-family: var(--mono); font-size: 11.5px; min-height: 52px; resize: vertical; }
+
+  .tot-bar { display: flex; justify-content: space-between; align-items: center; background: var(--navy); color: #fff; padding: 12px 18px; border-radius: var(--radius); margin-top: 16px; font-family: var(--mono); }
+  .tot-n { font-size: 30px; font-weight: 600; }
+  .tot-l { font-size: 10px; color: #5a8ab0; letter-spacing: .08em; margin-bottom: 3px; }
+  .sbd   { font-size: 11px; color: #5a8ab0; margin-top: 4px; }
+
+  .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--navy); border-top: 2px solid var(--mid); padding: 9px 24px; display: flex; gap: 8px; align-items: center; justify-content: flex-end; z-index: 200; }
+  .bar-info { margin-right: auto; font-family: var(--mono); font-size: 11px; color: #4a7499; }
+  .btn { font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .06em; padding: 8px 16px; border-radius: var(--radius); border: none; cursor: pointer; transition: all .13s; }
+  .bg { background: transparent; color: #5a8ab0; border: 1px solid rgba(255,255,255,.15); }
+  .bg:hover { background: rgba(255,255,255,.07); color: #c8dff0; }
+  .bp { background: var(--accent); color: #fff; }
+  .bp:hover { background: #1d6bc5; }
+  .bpr { background: #166534; color: #fff; }
+  .bpr:hover { background: #15803d; }
+  .bcl { background: transparent; color: #7a4040; border: 1px solid rgba(180,60,60,.2); }
+  .bcl:hover { background: rgba(180,60,60,.08); }
+
+  .table-scroll { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* ===== Tablet ===== */
+  @media (max-width: 860px) {
+    .g4 { grid-template-columns: 1fr 1fr; }
+    .g3 { grid-template-columns: 1fr 1fr; }
+    .g4 .s2, .g4 .s3, .g4 .s4,
+    .g3 .s2, .g3 .s3 { grid-column: span 2; }
+  }
+
+  /* ===== Mobile ===== */
+  @media (max-width: 640px) {
+    body { padding-bottom: 108px; }
+
+    /* Header no longer pins itself to the top of the viewport — it scrolls
+       away with the page so form content gets the full screen. Only the
+       tab strip re-docks itself once the rest of the header scrolls past. */
+    .header { position: static; padding-top: 10px; }
+
+    .sys-bar { flex-wrap: wrap; gap: 3px 12px; padding: 5px 12px; font-size: 9.5px; }
+    .sys-left { flex-wrap: wrap; gap: 4px 12px; }
+    .sys-left span:not(.sys-status) { display: none; }
+
+    .inner, .sbar-inner, .tabs-wrap, .main { padding-left: 12px; padding-right: 12px; }
+
+    .hrow { flex-direction: column; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+    .hid { font-size: 9px; }
+    .htitle { font-size: 14.5px; }
+    .hsub { display: none; }
+    .badges { flex-wrap: wrap; }
+    .badges .bsys { display: none; } /* redundant with sys-bar, dropped to save space */
+
+    .session-bar { padding: 8px 0; }
+    .sbar-inner { flex-direction: column; align-items: stretch; gap: 8px; }
+    .sbar-inner label { font-size: 9.5px; }
+    .sbar-inner select { width: 100%; min-width: 0; }
+    .sdiv { display: none; }
+    #ss { min-width: 0 !important; width: 100%; }
+
+    .tabs-dock {
+      background: linear-gradient(160deg, var(--navy) 0%, #1a3a5c 100%);
+      padding-top: 8px; padding-bottom: 8px;
+    }
+    .tabs-wrap { justify-content: flex-start; touch-action: pan-x; }
+    .tab { padding: 10px 12px; font-size: 10px; min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: rgba(59,130,212,.25); }
+
+    .main { margin-top: 6px !important; }
+    .panel { padding: 14px; }
+    .sh { font-size: 9.5px; padding: 6px 10px; }
+    .sb { padding: 12px; }
+
+    .g2, .g3, .g4 { grid-template-columns: 1fr; gap: 12px; }
+    .g2 .s2, .g3 .s2, .g3 .s3,
+    .g4 .s2, .g4 .s3, .g4 .s4 { grid-column: span 1; }
+
+    .vt { font-size: 11px; min-width: 560px; }
+    .rt { font-size: 11px; min-width: 480px; }
+    .vt th, .vt td, .rt th, .rt td { padding: 6px 8px; }
+    .rt td { white-space: normal; }
+    .rn { min-width: 160px; }
+
+    .tot-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .tot-bar > div:last-child { text-align: left !important; }
+
+    .action-bar { flex-wrap: wrap; padding: 8px 12px; gap: 6px; }
+    .bar-info { width: 100%; margin-right: 0; margin-bottom: 2px; }
+    .btn { flex: 1 1 auto; padding: 9px 10px; font-size: 10.5px; text-align: center; }
+
+    .sbs { flex-wrap: wrap; }
+    .scb { width: 30px; height: 30px; }
+  }
+
+  @media (max-width: 400px) {
+    .htitle { font-size: 13.5px; }
+    .hid { font-size: 8.5px; }
+    .badge { font-size: 9px; padding: 3px 7px; }
+  }
+
+  @media print {
+    body { background: #fff; padding-bottom: 0; }
+    .sys-bar, .action-bar, .tabs-wrap, .tabs-dock, .session-bar { display: none !important; }
+    .header { position: static; background: var(--navy); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .panel { display: block !important; border: none; padding: 0; margin-top: 20px; break-inside: avoid; }
+    .sh { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .vt th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rt th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .tot-bar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    input, select, textarea { border: 1px solid #aaa !important; }
+    .nc { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sys-bar">
+  <div class="sys-left">
+    <span class="sys-status"><span class="sys-dot"></span>SYSTEM ACTIVE</span>
+    <span>PAR103 PRACTICE ENVIRONMENT</span>
+    <span>NOT FOR CLINICAL USE</span>
+  </div>
+  <span id="clock"></span>
+</div>
+
+<div class="header">
+  <div class="inner">
+    <div class="hrow">
+      <div>
+        <div class="hid">CSU Bachelor of Paramedicine — PAR103</div>
+        <div class="htitle">Electronic Patient Care Record — Practice Sheet</div>
+        <div class="hsub">Student simulation tool — all entries are fictional and for educational use only</div>
+      </div>
+      <div class="badges">
+        <span class="badge bwarn">SIMULATION ONLY</span>
+        <span class="badge bsys">NOT FOR CLINICAL USE</span>
+        <span class="badge bdraft" id="status">DRAFT</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="session-bar">
+    <div class="sbar-inner">
+      <label>Week</label>
+      <select id="sw" onchange="updateCtx()">
+        <option value="">-- Select Week --</option>
+        <option value="1">Week 1 — Introduction &amp; Foundational Concepts</option>
+        <option value="2">Week 2 — Assessment Models &amp; Documentation</option>
+        <option value="3">Week 3 — Medication Safety</option>
+        <option value="4">Week 4 — Minor Respiratory Conditions</option>
+        <option value="5">Week 5 — Minor Cardiovascular Conditions</option>
+        <option value="6">Week 6 — Musculoskeletal Presentations</option>
+        <option value="9">Week 9 — Gastrointestinal &amp; Urogenital</option>
+        <option value="10">Week 10 — Integumentary &amp; Wound Care</option>
+        <option value="11">Week 11 — Endocrine &amp; Metabolic</option>
+        <option value="12">Week 12 — Neurological Presentations</option>
+        <option value="13">Week 13 — ENT &amp; Integration</option>
+      </select>
+      <div class="sdiv"></div>
+      <label>Lab</label>
+      <select id="sl" onchange="updateCtx()">
+        <option value="">-- Select --</option>
+        <option value="A">Lab A</option>
+        <option value="B">Lab B</option>
+      </select>
+      <div class="sdiv"></div>
+      <label>Scenario</label>
+      <input type="text" id="ss" placeholder="Enter scenario name" oninput="updateCtx()" style="font-family:var(--mono);font-size:12px;color:#c8dff0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius);padding:5px 10px;min-width:200px;outline:none;">
+    </div>
+  </div>
+
+  <div class="tabs-dock">
+  <div class="tabs-wrap">
+    <button type="button" class="tab active"  onclick="showTab(0)" id="t0"><span class="tind"></span>INCIDENT</button>
+    <button type="button" class="tab"         onclick="showTab(1)" id="t1"><span class="tind"></span>PATIENT</button>
+    <button type="button" class="tab"         onclick="showTab(2)" id="t2"><span class="tind"></span>HISTORY</button>
+    <button type="button" class="tab"         onclick="showTab(3)" id="t3"><span class="tind"></span>ASSESSMENT</button>
+    <button type="button" class="tab"         onclick="showTab(4)" id="t4"><span class="tind"></span>VITALS</button>
+    <button type="button" class="tab"         onclick="showTab(5)" id="t5"><span class="tind"></span>MANAGEMENT</button>
+    <button type="button" class="tab"         onclick="showTab(6)" id="t6"><span class="tind"></span>NARRATIVE</button>
+    <button type="button" class="tab"         onclick="showTab(7)" id="t7"><span class="tind"></span>PEER REVIEW</button>
+  </div>
+  </div>
+</div>
+
+<div class="main" style="margin-top:10px;">
+
+  <!-- INCIDENT -->
+  <div class="panel active" id="p0">
+    <div class="callout ci">Complete all mandatory fields marked with an asterisk before moving to the next tab. This section records call information as dispatched and session details for assessment purposes.</div>
+    <div class="sh">Dispatch &amp; Response</div>
+    <div class="sb">
+      <div class="g4">
+        <div class="f"><label>Case Reference <span class="req">*</span></label><input type="text" id="cref" placeholder="e.g. PAR103-W2-A-001"></div>
+        <div class="f"><label>Incident Date <span class="req">*</span></label><input type="date"></div>
+        <div class="f"><label>Dispatch Time</label><input type="time"></div>
+        <div class="f"><label>On Scene Time</label><input type="time"></div>
+        <div class="f s2"><label>Incident Location <span class="req">*</span></label><input type="text" placeholder="Street address or location description"></div>
+        <div class="f"><label>Location Type</label>
+          <select><option value="">-- Select --</option><option>Residential — Private Home</option><option>Residential — Aged Care Facility</option><option>Community Health Centre</option><option>General Practice / Clinic</option><option>Public Place</option><option>Workplace</option><option>Other</option></select>
+        </div>
+        <div class="f"><label>Acuity Code <span class="req">*</span></label>
+          <select><option value="">-- Select --</option><option>P1 — Immediately Life Threatening</option><option>P2 — Potentially Life Threatening</option><option>P3 — Low Acuity / Non-Urgent</option><option>P4 — Welfare / Referral</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="sh">Crew &amp; Session Details</div>
+    <div class="sb">
+      <div class="g4">
+        <div class="f s2"><label>Student Clinician Name <span class="req">*</span></label><input type="text" placeholder="Full name"></div>
+        <div class="f"><label>Student ID</label><input type="text" placeholder="CSU Student ID"></div>
+        <div class="f"><label>Role in Scenario <span class="req">*</span></label>
+          <select><option value="">-- Select --</option><option>Paramedic Student — Assessor</option><option>Observer / Scorer</option></select>
+        </div>
+        <div class="f s2"><label>Supervising Facilitator</label><input type="text" placeholder="Facilitator name"></div>
+        <div class="f"><label>Block</label>
+          <select><option>Block 1</option><option>Block 2</option><option>Block 3</option></select>
+        </div>
+        <div class="f"><label>Session Context</label><input type="text" id="ctx" readonly placeholder="Select week and lab above" style="background:var(--panel);color:var(--muted);cursor:default;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PATIENT -->
+  <div class="panel" id="p1">
+    <div class="callout ci">Record patient demographics as collected from the patient or collateral sources during the scenario. Use the patient name from your scenario card.</div>
+    <div class="sh">Patient Demographics</div>
+    <div class="sb">
+      <div class="g4">
+        <div class="f s2"><label>Patient Name — Surname, Given <span class="req">*</span></label><input type="text" placeholder="e.g. Hartley, Dennis"></div>
+        <div class="f"><label>Date of Birth</label><input type="date"></div>
+        <div class="f"><label>Age <span class="req">*</span></label><input type="number" placeholder="Years" min="0" max="120"></div>
+        <div class="f"><label>Gender <span class="req">*</span></label>
+          <select><option value="">-- Select --</option><option>Male</option><option>Female</option><option>Non-binary / gender diverse</option><option>Not stated</option></select>
+        </div>
+        <div class="f s3"><label>Address</label><input type="text" placeholder="Patient's residential address"></div>
+        <div class="f s2"><label>Next of Kin / Emergency Contact</label><input type="text" placeholder="Name and relationship"></div>
+        <div class="f s2"><label>Contact Number</label><input type="text" placeholder="Phone number"></div>
+      </div>
+    </div>
+    <div class="sh">Consent &amp; Communication</div>
+    <div class="sb">
+      <div class="g2">
+        <div class="f"><label>Consent Type <span class="req">*</span></label>
+          <div class="og">
+            <label><input type="radio" name="consent"> Verbal / Informed</label>
+            <label><input type="radio" name="consent"> Implied</label>
+            <label><input type="radio" name="consent"> Via Guardian / NOK</label>
+            <label><input type="radio" name="consent"> Refused</label>
+          </div>
+        </div>
+        <div class="f"><label>Patient Communication</label>
+          <div class="og">
+            <label><input type="radio" name="comms"> Clear and coherent</label>
+            <label><input type="radio" name="comms"> Difficulties noted</label>
+            <label><input type="radio" name="comms"> Interpreter required</label>
+          </div>
+        </div>
+        <div class="f s2"><label>Communication Notes</label><textarea rows="2" placeholder="Language, cognitive or hearing barriers; collateral sources used..."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="panel" id="p2">
+    <div class="callout cw"><strong>Documentation accuracy:</strong> Record only what you actually elicited in the scenario — not what you know from the patient card. If you did not ask about something, do not document it. Gaps in the record reflect gaps in the assessment.</div>
+    <div class="sh">Chief Complaint</div>
+    <div class="sb">
+      <div class="g1">
+        <div class="f"><label>Chief Complaint — in the patient's own words <span class="req">*</span></label><input type="text" placeholder="Use quotation marks if quoting directly"></div>
+        <div class="f"><label>Onset</label><input type="text" placeholder="When did this begin? Sudden or gradual?"></div>
+      </div>
+    </div>
+    <div class="sh">SAMPLE History</div>
+    <div class="sb">
+      <div class="g1">
+        <div class="f"><label>S — Signs &amp; Symptoms <span class="req">*</span></label>
+          <textarea rows="4" placeholder="Signs observed and symptoms reported. Apply OPQRST to the main symptom:&#10;Onset / Provocation/Palliation / Quality / Region/Radiation / Severity (0-10) / Time"></textarea>
+        </div>
+        <div class="f"><label>A — Allergies <span class="req">*</span></label><input type="text" placeholder="Known allergies and nature of reaction — or NKDA"></div>
+        <div class="f"><label>M — Medications <span class="req">*</span></label>
+          <textarea rows="3" placeholder="All current medications with dose and frequency where obtained. Were medications taken as prescribed today?"></textarea>
+        </div>
+        <div class="f"><label>P — Past Medical History <span class="req">*</span></label>
+          <textarea rows="3" placeholder="Relevant prior conditions, hospitalisations, surgeries. Cardiac, respiratory, neurological, endocrine history."></textarea>
+        </div>
+        <div class="f"><label>L — Last Oral Intake</label><input type="text" placeholder="What and when was the patient's last meal or drink?"></div>
+        <div class="f"><label>E — Events Leading to This Call <span class="req">*</span></label>
+          <textarea rows="3" placeholder="What led to this call? Who called and why? Collateral history from bystanders, family, or care staff."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="sh">Social History</div>
+    <div class="sb">
+      <div class="g2">
+        <div class="f"><label>Living Situation</label>
+          <select><option value="">-- Select --</option><option>Lives alone</option><option>Lives with family / partner</option><option>Aged care / supported living</option><option>Not established</option></select>
+        </div>
+        <div class="f"><label>Support Networks</label><input type="text" placeholder="Family, carers, community services involved"></div>
+        <div class="f"><label>Smoking</label>
+          <select><option value="">-- Select --</option><option>Non-smoker</option><option>Current smoker</option><option>Ex-smoker</option><option>Not established</option></select>
+        </div>
+        <div class="f"><label>Alcohol</label>
+          <select><option value="">-- Select --</option><option>Nil / minimal</option><option>Moderate</option><option>Significant use noted</option><option>Not established</option></select>
+        </div>
+        <div class="f s2"><label>Other Relevant Social Factors</label><textarea rows="2" placeholder="Occupation, cultural considerations, financial stress, health literacy, access to healthcare..."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSESSMENT -->
+  <div class="panel" id="p3">
+    <div class="sh">Primary Survey — ABCDE</div>
+    <div class="sb">
+      <div class="g2">
+        <div class="f"><label>A — Airway <span class="req">*</span></label>
+          <select><option value="">-- Select --</option><option>Patent — self-maintained</option><option>Patent — with positioning</option><option>Compromised</option></select>
+        </div>
+        <div class="f"><label>B — Breathing <span class="req">*</span></label>
+          <select><option value="">-- Select --</option><option>Adequate — unlaboured</option><option>Slightly laboured</option><option>Laboured / distressed</option><option>Inadequate</option></select>
+        </div>
+        <div class="f"><label>C — Circulation <span class="req">*</span></label>
+          <select><option value="">-- Select --</option><option>Radial pulse present — regular</option><option>Radial pulse present — irregular</option><option>Radial pulse weak / thready</option><option>Radial pulse absent</option></select>
+        </div>
+        <div class="f"><label>D — Disability / AVPU <span class="req">*</span></label>
+          <select><option value="">-- Select --</option><option>Alert (A)</option><option>Responds to Voice (V)</option><option>Responds to Pain (P)</option><option>Unresponsive (U)</option><option>GCS documented in Vitals tab</option></select>
+        </div>
+        <div class="f s2"><label>E — Exposure / Environment</label><input type="text" placeholder="Environmental observations, skin findings, obvious injuries, scene information..."></div>
+      </div>
+    </div>
+    <div class="sh">General Appearance &amp; Focused Examination</div>
+    <div class="sb">
+      <div class="g2">
+        <div class="f"><label>General Appearance <span class="req">*</span></label>
+          <div class="og">
+            <label><input type="radio" name="app"> Appears well</label>
+            <label><input type="radio" name="app"> Appears unwell</label>
+            <label><input type="radio" name="app"> Appears distressed</label>
+          </div>
+        </div>
+        <div class="f"><label>Skin</label>
+          <div class="og">
+            <label><input type="checkbox"> Normal</label>
+            <label><input type="checkbox"> Pale</label>
+            <label><input type="checkbox"> Flushed</label>
+            <label><input type="checkbox"> Cyanotic</label>
+            <label><input type="checkbox"> Diaphoretic</label>
+            <label><input type="checkbox"> Dry / warm</label>
+          </div>
+        </div>
+        <div class="f s2"><label>Focused Examination Findings</label>
+          <textarea rows="4" placeholder="Positive and negative findings from your focused examination. State which systems were examined and what was found."></textarea>
+        </div>
+        <div class="f s2"><label>Red Flags Identified <span class="req">*</span></label>
+          <textarea rows="3" placeholder="List specific red flags identified — or document 'No red flags identified at this time.' Do not leave blank."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="sh">Clinical Impression</div>
+    <div class="sb">
+      <div class="g1">
+        <div class="f"><label>Working Impression / Differential <span class="req">*</span></label>
+          <textarea rows="3" placeholder="Most likely presentation and any differentials considered. Justify with reference to history and examination findings."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VITALS -->
+  <div class="panel" id="p4">
+    <div class="callout ci">Record all vital signs obtained. In simulation, use values from your scenario card or as provided by your facilitator. Document trending across time points where applicable.</div>
+    <div class="sh">Vital Signs</div>
+    <div class="sb">
+      <div class="table-scroll">
+      <table class="vt">
+        <thead><tr><th>Parameter</th><th>Time 1</th><th>Time 2</th><th>Adult Normal Range</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Time of Recording</strong></td><td><input class="vi" type="time"></td><td><input class="vi" type="time"></td><td class="vr">—</td></tr>
+          <tr><td><strong>Blood Pressure</strong></td><td><input class="vi" type="text" placeholder="___/___ mmHg"></td><td><input class="vi" type="text" placeholder="___/___ mmHg"></td><td class="vr">Sys 90–140 / Dia 60–90 mmHg</td></tr>
+          <tr><td><strong>Heart Rate</strong></td><td><input class="vi" type="text" placeholder="__ bpm"></td><td><input class="vi" type="text" placeholder="__ bpm"></td><td class="vr">60–100 bpm, regular</td></tr>
+          <tr><td><strong>Respiratory Rate</strong></td><td><input class="vi" type="text" placeholder="__ /min"></td><td><input class="vi" type="text" placeholder="__ /min"></td><td class="vr">12–20 breaths/min</td></tr>
+          <tr><td><strong>SpO2</strong></td><td><input class="vi" type="text" placeholder="__%  (RA / O2)"></td><td><input class="vi" type="text" placeholder="__%  (RA / O2)"></td><td class="vr">95% or above on room air</td></tr>
+          <tr><td><strong>Temperature</strong></td><td><input class="vi" type="text" placeholder="__.__°C"></td><td><input class="vi" type="text" placeholder="__.__°C"></td><td class="vr">36.1–37.2°C</td></tr>
+          <tr><td><strong>Blood Glucose Level</strong></td><td><input class="vi" type="text" placeholder="__.__  mmol/L"></td><td><input class="vi" type="text" placeholder="__.__  mmol/L"></td><td class="vr">Fasting 3.9–5.5 / Random &lt;11.1 mmol/L</td></tr>
+          <tr><td><strong>Pain Score (0–10)</strong></td><td><input class="vi" type="text" placeholder="__ /10"></td><td><input class="vi" type="text" placeholder="__ /10"></td><td class="vr">0 = none / 10 = worst imaginable</td></tr>
+          <tr><td><strong>GCS (E / V / M)</strong></td><td><input class="vi" type="text" placeholder="E__ V__ M__ = __/15"></td><td><input class="vi" type="text" placeholder="E__ V__ M__ = __/15"></td><td class="vr">15/15 = fully alert</td></tr>
+          <tr><td><strong>Peak Flow (if applicable)</strong></td><td><input class="vi" type="text" placeholder="___ L/min"></td><td><input class="vi" type="text" placeholder="___ L/min"></td><td class="vr">Age / sex / height dependent</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="sh">Vital Signs Interpretation</div>
+    <div class="sb">
+      <div class="g1">
+        <div class="f"><label>Interpretation — what do the vital signs tell you? <span class="req">*</span></label>
+          <textarea rows="4" placeholder="Are values within normal limits? Do they support or change your clinical impression?&#10;Note values outside normal range and their clinical significance.&#10;If two time points recorded — describe the trend and what it means for this patient."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGEMENT -->
+  <div class="panel" id="p5">
+    <div class="sh">Interventions &amp; Management</div>
+    <div class="sb">
+      <div class="g1">
+        <div class="f"><label>Non-Pharmacological Management Provided <span class="req">*</span></label>
+          <textarea rows="3" placeholder="Reassurance, positioning, oxygen therapy, wound care, immobilisation, splinting, patient education, safety-netting...&#10;If none provided, document the rationale."></textarea>
+        </div>
+        <div class="f"><label>Medications Administered</label>
+          <textarea rows="3" placeholder="For each medication: Name | Dose | Route | Time | Indication | Patient response&#10;If nil: document 'Nil medications administered.'"></textarea>
+        </div>
+        <div class="f"><label>Patient Education &amp; Safety-Netting Advice</label>
+          <textarea rows="3" placeholder="Information provided about the condition. Signs to monitor. When and where to seek further help."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="sh">Disposition &amp; Referral</div>
+    <div class="sb">
+      <div class="g2">
+        <div class="f"><label>Disposition <span class="req">*</span></label>
+          <select><option value="">-- Select --</option><option>Transported to ED — emergency</option><option>Transported to ED — non-urgent</option><option>Referred to GP / primary care</option><option>Referred to community health service</option><option>Referred to pharmacy</option><option>Treated on scene — no transport required</option><option>Patient declined transport — RFT completed</option><option>Escalated to senior clinician</option><option>Managed conservatively within student scope</option></select>
+        </div>
+        <div class="f"><label>Rationale for Disposition <span class="req">*</span></label>
+          <textarea rows="3" placeholder="Why this decision? What clinical findings supported it? Does it align with clinical impression and red flag assessment?"></textarea>
+        </div>
+        <div class="f s2"><label>Handover Summary — IMIST-AMBO</label>
+          <textarea rows="9" placeholder="I  — Identification:      Patient name, age, gender&#10;M  — Mechanism / Medical complaint:  What happened or presenting condition&#10;I  — Injuries / Information:  Relevant findings from assessment&#10;S  — Signs:                Vital signs — BP, HR, RR, SpO2, GCS, BGL&#10;T  — Treatment:            Management provided; medications given&#10;&#10;A  — Allergies:            Known drug or environmental allergies&#10;M  — Medications:          Current regular medications&#10;B  — Background history:   Relevant past medical history&#10;O  — Other information:    Social history, next of kin, scene details"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NARRATIVE -->
+  <div class="panel" id="p6">
+    <div class="callout ci">The narrative is a chronological account of the entire call — written for the next clinician who reads this record. It integrates your history, examination, vitals, and management into a coherent story. It does not replace the other tabs — it connects them.</div>
+    <div class="callout cw"><strong>Key principle:</strong> Write what you found, not what you wish you had found. Gaps documented honestly are more clinically useful than a complete-seeming narrative that does not reflect what actually happened.</div>
+    <div class="sh">Clinical Narrative</div>
+    <div class="sb">
+      <div class="f">
+        <label>Full Narrative <span class="req">*</span></label>
+        <div class="nw">
+          <textarea id="narr" rows="22" placeholder="Structure chronologically:&#10;&#10;On arrival at [location / time], [patient name], a [age]-year-old [gender], was found [position / appearance / location]...&#10;&#10;Continue through:&#10;— Initial presentation; consent obtained&#10;— History collected (SAMPLE / Medical Model)&#10;— Examination findings&#10;— Vital signs and significance&#10;— Clinical impression formed&#10;— Management provided&#10;— Disposition and rationale&#10;&#10;Write as if the next clinician has no other information about this call."></textarea>
+          <span class="nc" id="nc">0 characters</span>
+        </div>
+      </div>
+    </div>
+    <div class="sh">Declaration</div>
+    <div class="sb">
+      <div class="g4">
+        <div class="f s2"><label>Student Clinician Name <span class="req">*</span></label><input type="text" placeholder="Full name"></div>
+        <div class="f"><label>Date Completed</label><input type="date"></div>
+        <div class="f"><label>Time Completed</label><input type="time"></div>
+        <div class="f s4">
+          <div class="callout cs" style="margin:0">I declare that this ePCR entry represents an accurate account of the simulated patient encounter to the best of my recollection. This document has been completed for educational purposes only as part of PAR103 at Charles Sturt University and is not for clinical use.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PEER REVIEW -->
+  <div class="panel" id="p7">
+    <div class="callout ci">Swap your completed ePCR with your partner. Review their record against the six criteria below. Score each: <strong>2</strong> = clearly demonstrated, <strong>1</strong> = partially demonstrated, <strong>0</strong> = not observed. Provide written feedback for each criterion.</div>
+    <div class="callout cw">Peer review assesses the record, not the person. Focus on what is documented — not what you know about the case from the simulation.</div>
+    <div class="sh">Reviewer Details</div>
+    <div class="sb">
+      <div class="g2">
+        <div class="f"><label>Reviewer Name <span class="req">*</span></label><input type="text" placeholder="Your name — the person completing this review"></div>
+        <div class="f"><label>Author Being Reviewed</label><input type="text" placeholder="Name of student whose ePCR you are reviewing"></div>
+      </div>
+    </div>
+    <div class="sh">Scoring Criteria</div>
+    <div class="sb">
+      <div class="table-scroll">
+      <table class="rt">
+        <thead><tr><th style="width:42%">Criterion</th><th style="width:22%">Score (0 / 1 / 2)</th><th>Written Feedback</th></tr></thead>
+        <tbody id="rb"></tbody>
+      </table>
+      </div>
+      <div class="tot-bar">
+        <div>
+          <div class="tot-l">PEER REVIEW TOTAL</div>
+          <div class="tot-n"><span id="tot">0</span> / 12</div>
+        </div>
+        <div style="text-align:right">
+          <div class="tot-l">CRITERION BREAKDOWN</div>
+          <div class="sbd" id="bkd">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="sh">Overall Feedback</div>
+    <div class="sb">
+      <div class="g1">
+        <div class="f"><label>One thing this ePCR does well — be specific</label><textarea rows="3" placeholder="Name the section, language, or clinical decision documented well..."></textarea></div>
+        <div class="f"><label>One thing this ePCR should improve — be constructive</label><textarea rows="3" placeholder="Identify the gap and suggest what additional information would have strengthened the record..."></textarea></div>
+        <div class="f"><label>Would the next clinician have enough to continue this patient's care? <span class="req">*</span></label>
+          <div class="og">
+            <label><input type="radio" name="nxt"> Yes — record is sufficient</label>
+            <label><input type="radio" name="nxt"> Mostly — some gaps present</label>
+            <label><input type="radio" name="nxt"> No — significant information missing</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="action-bar">
+  <span class="bar-info" id="bi">Tab 1 of 8</span>
+  <button class="btn bcl" onclick="clearForm()">Clear Form</button>
+  <button class="btn bg"  onclick="prevTab()">Previous</button>
+  <button class="btn bp"  onclick="nextTab()">Next</button>
+  <button class="btn bpr" onclick="window.print()">Print / Save PDF</button>
+</div>
+
+<script>
+// Clock
+function tick(){const n=new Date();document.getElementById('clock').textContent=n.toLocaleDateString('en-AU')+'   '+n.toLocaleTimeString('en-AU',{hour12:false});}
+tick();setInterval(tick,1000);
+
+function updateCtx(){
+  const w=document.getElementById('sw').value, l=document.getElementById('sl').value;
+  const wt=document.getElementById('sw').options[document.getElementById('sw').selectedIndex]?.text||'';
+  document.getElementById('ctx').value=[wt,l?'Lab '+l:''].filter(Boolean).join(' — ')||'';
+  const cr=document.getElementById('cref');
+  if(w&&l) cr.placeholder=`e.g. PAR103-W${w}-${l}-001`;
+}
+
+// Tabs
+let cur=0; const N=8; const done=new Set();
+function showTab(n){
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===n));
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.remove('active');if(i===n)t.classList.add('active');});
+  cur=n;
+  document.getElementById('bi').textContent=`Tab ${n+1} of ${N}`;
+  document.querySelector('.tabs-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function nextTab(){
+  done.add(cur);
+  document.getElementById('t'+cur).classList.add('complete');
+  if(cur<N-1) showTab(cur+1);
+  if(done.size>=N){document.getElementById('status').textContent='COMPLETE';document.getElementById('status').className='badge bdone';}
+}
+function prevTab(){if(cur>0)showTab(cur-1);}
+
+// Clear
+function clearForm(){
+  if(!confirm('Clear all entered data? This cannot be undone.'))return;
+  document.querySelectorAll('input:not([type=radio]):not([type=checkbox]),textarea').forEach(el=>{if(el.readOnly)return;el.value='';});
+  document.querySelectorAll('input[type=radio],input[type=checkbox]').forEach(el=>el.checked=false);
+  document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+  done.clear(); scores.fill(null);
+  document.querySelectorAll('.scb').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('tot').textContent='0';
+  document.getElementById('bkd').textContent='—';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('complete'));
+  document.getElementById('status').textContent='DRAFT';
+  document.getElementById('status').className='badge bdraft';
+  document.getElementById('nc').textContent='0 characters';
+  showTab(0);
+}
+
+// Narrative counter
+const narr=document.getElementById('narr');
+narr.addEventListener('input',()=>{document.getElementById('nc').textContent=narr.value.length+' characters';});
+
+// Peer review
+const CRIT=[
+  {t:"Chief complaint recorded accurately",           d:"Reflects the patient's presenting problem in their own words where possible"},
+  {t:"History is complete for what was asked",        d:"All SAMPLE components explored during the assessment are documented"},
+  {t:"Vital signs recorded correctly",                d:"All values documented with units; time of recording noted"},
+  {t:"Red flags documented or noted as nil",          d:"States red flags found, or explicitly records 'no red flags identified'"},
+  {t:"Clinical impression is appropriate",            d:"Working impression is reasonable given the history and vitals documented"},
+  {t:"Written clearly for the next clinician",        d:"A clinician unfamiliar with the case could read this and understand the call"},
+];
+const scores=new Array(CRIT.length).fill(null);
+const rb=document.getElementById('rb');
+CRIT.forEach((c,i)=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><div class="ct">${c.t}</div><div class="cd">${c.d}</div></td><td><div class="sbs"><button class="scb" onclick="setScore(${i},0,this)">0</button><button class="scb" onclick="setScore(${i},1,this)">1</button><button class="scb" onclick="setScore(${i},2,this)">2</button></div><div class="sbl">0=not observed &nbsp; 1=partial &nbsp; 2=clear</div></td><td><textarea class="rn" placeholder="Specific feedback..."></textarea></td>`;
+  rb.appendChild(tr);
+});
+function setScore(i,v,btn){
+  scores[i]=v;
+  btn.closest('td').querySelectorAll('.scb').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('tot').textContent=scores.reduce((a,s)=>a+(s??0),0);
+  document.getElementById('bkd').textContent=scores.map((s,j)=>`C${j+1}:${s??'—'}`).join('   ');
+}
+</script>
+</body>
+</html>
