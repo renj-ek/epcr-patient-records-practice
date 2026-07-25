@@ -63,7 +63,6 @@
   .header {
     background: linear-gradient(160deg, var(--navy) 0%, #1a3a5c 100%);
     padding: 16px 0 0;
-    position: sticky; top: 0; z-index: 100;
     box-shadow: 0 2px 16px rgba(0,0,0,.3);
   }
   .inner { max-width: 960px; margin: 0 auto; padding: 0 20px; }
@@ -88,6 +87,12 @@
   .sdiv { width: 1px; height: 24px; background: rgba(255,255,255,.1); }
 
   .tabs-wrap { max-width: 960px; margin: 0 auto; padding: 0 20px; display: flex; gap: 2px; align-items: flex-end; overflow-x: auto; }
+  .tabs-dock {
+    position: sticky; top: 0; z-index: 120;
+    background: linear-gradient(160deg, var(--navy) 0%, #1a3a5c 100%);
+    padding-top: 10px;
+    box-shadow: 0 2px 16px rgba(0,0,0,.3);
+  }
   .tab { -webkit-appearance: none; appearance: none; font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .05em; padding: 9px 15px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-bottom: none; border-radius: 3px 3px 0 0; color: #5a8ab0; cursor: pointer; transition: all .13s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
   .tab:hover { background: rgba(255,255,255,.12); color: #9ec5e0; }
   .tab, .btn, .scb { touch-action: manipulation; -webkit-tap-highlight-color: rgba(59,130,212,.25); }
@@ -196,7 +201,7 @@
     /* Header no longer pins itself to the top of the viewport — it scrolls
        away with the page so form content gets the full screen. Only the
        tab strip re-docks itself once the rest of the header scrolls past. */
-    .header { position: static; padding-top: 10px; }
+    .header { padding-top: 10px; }
 
     .sys-bar { flex-wrap: wrap; gap: 3px 12px; padding: 5px 12px; font-size: 9.5px; }
     .sys-left { flex-wrap: wrap; gap: 4px 12px; }
@@ -218,10 +223,7 @@
     .sdiv { display: none; }
     #ss { min-width: 0 !important; width: 100%; }
 
-    .tabs-dock {
-      background: linear-gradient(160deg, var(--navy) 0%, #1a3a5c 100%);
-      padding-top: 8px; padding-bottom: 8px;
-    }
+    .tabs-dock { padding-top: 8px; }
     .tabs-wrap { justify-content: flex-start; touch-action: pan-x; }
     .tab { padding: 10px 12px; font-size: 10px; min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: rgba(59,130,212,.25); }
 
@@ -260,7 +262,7 @@
   @media print {
     body { background: #fff; padding-bottom: 0; }
     .sys-bar, .action-bar, .tabs-wrap, .tabs-dock, .session-bar { display: none !important; }
-    .header { position: static; background: var(--navy); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .header { background: var(--navy); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .panel { display: block !important; border: none; padding: 0; margin-top: 20px; break-inside: avoid; }
     .sh { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .vt th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -328,7 +330,9 @@
     </div>
   </div>
 
-  <div class="tabs-dock">
+</div>
+
+<div class="tabs-dock">
   <div class="tabs-wrap">
     <button type="button" class="tab active"  onclick="showTab(0)" id="t0"><span class="tind"></span>INCIDENT</button>
     <button type="button" class="tab"         onclick="showTab(1)" id="t1"><span class="tind"></span>PATIENT</button>
@@ -338,7 +342,6 @@
     <button type="button" class="tab"         onclick="showTab(5)" id="t5"><span class="tind"></span>MANAGEMENT</button>
     <button type="button" class="tab"         onclick="showTab(6)" id="t6"><span class="tind"></span>NARRATIVE</button>
     <button type="button" class="tab"         onclick="showTab(7)" id="t7"><span class="tind"></span>PEER REVIEW</button>
-  </div>
   </div>
 </div>
 
